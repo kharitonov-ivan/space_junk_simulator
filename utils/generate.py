@@ -1,4 +1,3 @@
-
 import csv
 import numpy as np
 
@@ -11,8 +10,8 @@ def spherical_to_decart(radius, theta, phi):
 
 
 def decart_to_spherical(x, y, z):
-    r = np.sqrt(x**2 + y**2 + z**2)
-    theta = np.arccos(z/r)
+    r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
+    theta = np.arccos(z / r)
     phi = np.arctan(y / x)
     return r, theta, phi
 
@@ -37,7 +36,7 @@ def draw_random_number_from_pdf(pdf, interval, pdfmax=1, integers=False, max_ite
         else:
             # (b - a) * random_sample() + a
             rand_x = (interval[1] - interval[0]) * \
-                np.random.random(1) + interval[0]
+                     np.random.random(1) + interval[0]
 
         rand_y = pdfmax * np.random.random(1)
         calc_y = pdf(rand_x)
@@ -70,8 +69,8 @@ def generate_object_states(object_count=100,
     mu, sigma, size = orbit_altitude_mean, orbit_altitude_var, object_count
     altitudes = np.random.normal(mu, sigma, size)
 
-    thetas = np.random.uniform(0, 2*np.pi, size=object_count)
-    phis = np.random.uniform(0, 2*np.pi, size=object_count)
+    thetas = np.random.uniform(0, 2 * np.pi, size=object_count)
+    phis = np.random.uniform(0, 2 * np.pi, size=object_count)
 
     """Generate object sizes"""
     sizes = [draw_random_number_from_pdf(lambda x: 1 / x, [object_min_size, object_max_size])[0]
