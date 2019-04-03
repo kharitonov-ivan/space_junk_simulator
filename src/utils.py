@@ -54,41 +54,52 @@ def generate_object_states(object_count=100,
                            orbit_altitude_var=200000,
                            object_min_size=0.1,
                            object_max_size=10.0) -> 'list of object parameters':
-    """
-    Generates list of space junk.
-    :param object_count:
-    :param orbit_type:
-    :param orbit_altitude_mean:
-    :param orbit_altitude_var:
-    :param object_min_size:
-    :param object_max_size:
-    :return:
-    """
 
-    """Generate orbit position"""
+
+
+    """Generate object position"""
     mu, sigma, size = orbit_altitude_mean, orbit_altitude_var, object_count
     altitudes = np.random.normal(mu, sigma, size)
 
-    thetas = np.random.uniform(0, 2 * np.pi, size=object_count)
-    phis = np.random.uniform(0, 2 * np.pi, size=object_count)
+    thetas_0 = np.random.uniform(0, 2*np.pi, size=object_count)
+    phis_0 = np.random.uniform(0, 2*np.pi, size=object_count)
+
+
+    """Generate speed vector"""
 
     """Generate object sizes"""
     sizes = [draw_random_number_from_pdf(lambda x: 1 / x, [object_min_size, object_max_size])[0]
              for _ in range(object_count)]
 
     object_list = []
-    for object_idx, altitude, theta, phi, size in zip(
-            range(object_count), altitudes, thetas, phis, sizes):
-        x, y, z = spherical_to_decart(altitude, theta, phi)
+    for object_idx, altitude, theta_0, phi_0, size in zip(
+            range(object_count), altitudes, thetas_0, phis_0, sizes):
+        x_0, y_0, z_0 = spherical_to_decart(altitude, theta_0, phi_0)
+
+
+        eps = 0.000000001*np.pi
+        theta_1 = np.random.uniform(theta_0 - eps, theta_0 + eps, size=1)
+        phi_1 = np.random.uniform(phi_0 - eps, phi_0 + eps, size=1)
+        x_1, y_1, z_1 = spherical_to_decart(altitude, theta_1, phi_1)
+
+
+        vx_0 = x_1 - x_0
+        vy_0 = y_1 - y_0
+        vz_0 = z_1 - z_0
+
+
+
         object_list.append({'time': 0.0,
                             'object_id': object_idx,
-                            'x': x,
-                            'y': y,
-                            'z': z,
+                            'x': x_0,
+                            'y': y_0,
+                            'z': z_0,
+                            'vx' : vx_0[0],
+                            'vy' : vy_0[0],
+                            'vz' : vz_0[0],
                             'size': size})
 
     return object_list
-
 
 def generates_objects_in_file(filename,
                               object_count=100,
@@ -97,15 +108,20 @@ def generates_objects_in_file(filename,
                               orbit_altitude_var=200000,
                               object_min_size=0.1,
                               object_max_size=10.0):
-    my_object_list = generate_object_states(object_count, orbit_type, orbit_altitude_mean,
-                                            orbit_altitude_var, object_min_size, object_max_size)
-
+    object_list = generate_object_states(object_count, orbit_type, orbit_altitude_mean,
+                                         orbit_altitude_var, object_min_size, object_max_size)
+    time = 0
     with open(filename, 'w', newline='') as csvfile:
         spamwriter = csv.writer(csvfile, delimiter=' ',
                                 quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        spamwriter.writerow(['object_id', 'altitude', 'size'])
-        for space_object in my_object_list:
-            spamwriter.writerow([space_object['object_id'],
-                                 space_object['altitude'],
+        for space_object in object_list:
+            spamwriter.writerow([time,
+                                 space_object['object_id'],
+                                 space_object['x'],
+                                 space_object['y'],
+                                 space_object['z'],
+                                 space_object['vx'],
+                                 space_object['vy'],
+                                 space_object['vz'],
                                  space_object['size']])
     return -1

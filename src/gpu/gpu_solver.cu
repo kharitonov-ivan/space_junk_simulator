@@ -86,7 +86,7 @@ World::Object GetNextState(World::Object &obj,
       obj.size);
 }
 
-__global__ void GpuSolve(double dt, double time,
+void GpuSolve(double dt, double time,
                          thrust::host_vector<World::Object> &objects,
                          thrust::host_vector<World::Force> &forces,
                          size_t stepsNumber,
@@ -106,7 +106,6 @@ __global__ void GpuSolve(double dt, double time,
   }
 }
 
-__global__
 void GPUSolver::Solver::Solve(double dt,
                               double time,
                               std::vector<World::Object> &objects,
