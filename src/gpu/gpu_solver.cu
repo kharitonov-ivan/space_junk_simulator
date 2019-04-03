@@ -106,6 +106,7 @@ __global__ void GpuSolve(double dt, double time,
   }
 }
 
+__global__
 void GPUSolver::Solver::Solve(double dt,
                               double time,
                               std::vector<World::Object> &objects,
