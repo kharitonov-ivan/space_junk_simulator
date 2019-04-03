@@ -1,6 +1,11 @@
 # space_junk_simulator
 Simulator of Space junk objects based on CUDA solver
 
+### Python package
+Installation 
+run ```python setup.py install```
+
+
 Вокруг Земли летает 21000 объектов. Надо:
 - Рассчитывать их траектории
 - Находить опасные сближения
