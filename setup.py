@@ -8,7 +8,7 @@ cur_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 cpp_files = ['/src/model.cpp', '/src/cpu/cpu_solver.cpp', '/src/python_package/python_wrapper.cpp']
 input_cpp_files = [cur_path + path for path in cpp_files]
 
-o_files = ['src/python_package/' +
+o_files = [cur_path + 'src/python_package/' +
            path for path in ['model.o', 'cpu_solver.o', 'python_package.o']]
 des_o_files = [cur_path + '/' + path for path in o_files]
 
@@ -23,7 +23,7 @@ subprocess.call(['g++', '-shared', '-std=c++14', '-W1',
                  '-o', shared__library, *des_o_files,'/src/python_package/gpu_solver.o'])
 
 try:
-    subprocess.call(['nvcc','-c', '/src/gpu/gpu_solver.cu', '-o','/src/python_package/gpu_solver.o', '-Xcompiler', '-fPIC'])
+    subprocess.call(['nvcc','-c', cur_path + '/src/gpu/gpu_solver.cu', '-o','/src/python_package/gpu_solver.o', '-Xcompiler', '-fPIC'])
 except:
     pass
 
