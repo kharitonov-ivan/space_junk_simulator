@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model.h"
+#include "../model.h"
 
 namespace GPUSolver {
 class Solver : public World::Solver {
