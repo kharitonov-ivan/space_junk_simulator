@@ -23,7 +23,7 @@ subprocess.call(['g++', '-shared', '-std=c++14', '-W1',
                  '-o', shared__library, *des_o_files,'/src/python_package/gpu_solver'])
 
 try:
-    subprocess.call(['nvcc','-c', '/src/gpu/gpu_solver.cu', '-o','/src/python_package/gpu_solver', '-Xcompiler', '-fPIC'])
+    subprocess.call(['nvcc','-c', '/src/gpu/gpu_solver.cu', '-o','/src/python_package/gpu_solver.o', '-Xcompiler', '-fPIC'])
 except:
     pass
 
