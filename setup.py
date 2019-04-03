@@ -20,10 +20,12 @@ for cpp_file, o_file in zip(input_cpp_files, o_files):
 
 shared__library = cur_path + '/src/python_package/python_package.so'
 subprocess.call(['g++', '-shared', '-std=c++14', '-W1',
-                 '-o', shared__library, *des_o_files])
+                 '-o', shared__library, *des_o_files,'/src/python_package/gpu_solver'])
 
-subprocess.call(['nvcc','-c', '/src/gpu/gpu_solver.cu', '-o', '-Xcompiler', '-fPIC'])
-
+try:
+    subprocess.call(['nvcc','-c', '/src/gpu/gpu_solver.cu', '-o','/src/python_package/gpu_solver', '-Xcompiler', '-fPIC'])
+except:
+    pass
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
