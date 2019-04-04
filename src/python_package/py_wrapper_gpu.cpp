@@ -4,7 +4,7 @@
 #include <fstream>
 
 extern "C"
-void solve_cpu(const double *x,
+void solve_gpu(const double *x,
                const double *y,
                const double *z,
                const double *vx,
@@ -33,7 +33,7 @@ void solve_cpu(const double *x,
 
   std::vector<size_t> log_trajectories;
 
-  World::Solver *generalSolver = new CPUSolver::Solver();
+  World::Solver *generalSolver = new GPUSolver::Solver();
   World::World world(timestep, 0.0, objects, forces, generalSolver, simulate_steps, log_trajectories);
 
   std::cout << "Model created. Starting simulations\n";
