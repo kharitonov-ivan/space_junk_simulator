@@ -18,9 +18,10 @@ class Object(ctypes.Structure):
 
 class space_simulator:
     def __init__(self, gpu = False):
-        #print(os.getcwd())
-        # cur_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-        so_cpu_path = ('src/python_package/python_package_cpu.so')
+        print(os.getcwd())
+        cur_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+        print(cur_path)
+        so_cpu_path = cur_path + '/python_package_cpu.so'
         self.cpu_lib = ctypes.CDLL(so_cpu_path)
         self.cpu_lib.solve_cpu.argtypes = [numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x
                                           numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y
@@ -41,8 +42,9 @@ class space_simulator:
         print("Ok!")
 
         if gpu:
-            so_gpu_path = ('/python_package_cpu.so')
-            self.solver_gpu = ctypes.CDLL(cur_path + so_gpu_path)
+            #so_gpu_path = cur_path + '/python_package_gpu.so'
+            so_gpu_path = "/home/ipharitonov/space_junk_simulator/src/python_package/python_package_gpu.so"
+            self.solver_gpu = ctypes.CDLL(so_gpu_path)
             self.solver_gpu.main_.argtypes = [numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x
                                               numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y
                                               numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z
