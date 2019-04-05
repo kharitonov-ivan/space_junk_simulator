@@ -5,7 +5,7 @@ import os, subprocess
 
 USE_GPU = False
 
-cur_path = ""#os.path.join(os.path.dirname(os.path.abspath(__file__)))
+cur_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 cpp_files = ['/src/model.cpp', '/src/cpu/cpu_solver.cpp', '/src/python_package/py_wrapper_cpu.cpp', '/src/python_package/py_wrapper_gpu.cpp']
 input_cpp_files = [cur_path + path for path in cpp_files]

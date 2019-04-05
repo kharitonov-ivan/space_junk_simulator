@@ -1,3 +1,4 @@
+
 import ctypes
 import numpy
 import glob
@@ -18,10 +19,10 @@ class Object(ctypes.Structure):
 class space_simulator:
     def __init__(self, gpu = False):
         #print(os.getcwd())
-        cur_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-        so_cpu_path = ('/python_package_cpu.so')
-        self.solver_cpu = ctypes.CDLL(cur_path + so_cpu_path)
-        self.solver_cpu.main_.argtypes = [numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x
+        # cur_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+        so_cpu_path = ('src/python_package/python_package_cpu.so')
+        self.cpu_lib = ctypes.CDLL(so_cpu_path)
+        self.cpu_lib.solve_cpu.argtypes = [numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x
                                           numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y
                                           numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z
                                           numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vx
@@ -36,7 +37,7 @@ class space_simulator:
                                           c_size_t,
                                           c_double]
 
-        self.solver_cpu.main_.restype = None
+        self.cpu_lib.solve_cpu.restype = None
         print("Ok!")
 
         if gpu:
@@ -63,7 +64,7 @@ class space_simulator:
         x_res, y_res, z_res, vx_res, vy_res, vz_res = x, y, z, vx, vy, vz
 
         if gpu==False:
-            self.solver_cpu.solve_cpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, vzsteps, timestep)
+            self.cpu_lib.solve_cpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, vzsteps, timestep)
         else:
             self.solver_gpu.solve_gpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, vzsteps, timestep)
 
