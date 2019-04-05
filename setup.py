@@ -1,8 +1,11 @@
+
 #!/usr/bin/env python
 from setuptools import setup
 import os, subprocess
 
-cur_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+USE_GPU = False
+
+cur_path = ""#os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
 cpp_files = ['/src/model.cpp', '/src/cpu/cpu_solver.cpp', '/src/python_package/py_wrapper_cpu.cpp', '/src/python_package/py_wrapper_gpu.cpp']
 input_cpp_files = [cur_path + path for path in cpp_files]
@@ -18,30 +21,31 @@ for cpp_file, o_file in zip(input_cpp_files, o_files):
 
 so_cpu_path = cur_path + '/src/python_package/python_package_cpu.so'
 so_gpu_path = cur_path + '/src/python_package/python_package_gpu.so'
-try:
+
+
+
+if USE_GPU:
     subprocess.call(
-        ['nvcc', '-c', cur_path + '/src/gpu/gpu_solver.cu', '-o', '/src/python_package/gpu_solver.o', '-Xcompiler',
+        ['nvcc', '-c', cur_path + '/src/gpu/gpu_solver.cu', '-o', cur_path +'/src/python_package/gpu_solver.o', '-Xcompiler',
          '-fPIC'])
 
-    subprocess.call(['g++', '-shared', '-std=c++14', '-W1',
+    subprocess.call(['g++', '-shared', '-std=c++14',
                      '-o', so_gpu_path, *o_files, cur_path + '/src/python_package/gpu_solver.o'])
-except:
-    subprocess.call(['g++', '-shared', '-std=c++14', '-W1',
-                     '-o', so_cpu_path, *o_files])
+
+else:
+    subprocess.call(['g++', '-shared', '-std=c++14', '-o', so_cpu_path, *o_files])
+    print("OK")
 
 
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
-
-setup(
-    name='space_junk_simulator',
-    version='0.1',
-    packages=[''],
-    package_dir={'': 'src/python_package'},
-    url='',
-    license='',
-    author='ivan_kharitonov',
-    author_email='',
-    description=''
-)
+# setup(
+#     name='space_junk_simulator',
+#     version='0.1',
+#     packages=[''],
+#     package_dir={'': 'src/python_package'},
+#     url='',
+#     license='',
+#     author='ivan_kharitonov',
+#     author_email='',
+#     description=''
+# )
