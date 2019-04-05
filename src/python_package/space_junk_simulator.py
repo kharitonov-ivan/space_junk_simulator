@@ -42,10 +42,9 @@ class space_simulator:
         print("Ok!")
 
         if gpu:
-            #so_gpu_path = cur_path + '/python_package_gpu.so'
-            so_gpu_path = "/home/ipharitonov/space_junk_simulator/src/python_package/python_package_gpu.so"
-            self.solver_gpu = ctypes.CDLL(so_gpu_path)
-            self.solver_gpu.main_.argtypes = [numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x
+            so_gpu_path =  cur_path + '/python_package_gpu.so'
+            self.gpu_lib = ctypes.CDLL(so_gpu_path)
+            self.gpu_lib.solve_gpu.argtypes = [numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x
                                               numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y
                                               numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z
                                               numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vx
@@ -60,7 +59,7 @@ class space_simulator:
                                               c_size_t,
                                               c_double]
 
-            self.solver_gpu.main_.restype = None
+#             self.gpu_lib.solve_gpu.restype = None
 
     def run(self, x, y, z, vx, vy, vz, vzsteps=10, timestep = 1.0, gpu = False):
         x_res, y_res, z_res, vx_res, vy_res, vz_res = x, y, z, vx, vy, vz
@@ -68,9 +67,9 @@ class space_simulator:
         if gpu==False:
             self.cpu_lib.solve_cpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, vzsteps, timestep)
         else:
-            self.solver_gpu.solve_gpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, vzsteps, timestep)
+            self.gpu_lib.solve_gpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, vzsteps, timestep)
 
-        print("run!")
+ 
         return x_res, y_res, z_res, vx_res, vy_res, vz_res
 
 

@@ -1,5 +1,5 @@
 #include "../model.h"
-#include "../cpu/cpu_solver.h"
+#include "../gpu/gpu_solver.h"
 #include "../../lib/json.hpp"
 #include <fstream>
 
