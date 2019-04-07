@@ -3,7 +3,8 @@
 from setuptools import setup
 import os, subprocess
 
-USE_GPU = True
+USE_GPU = False
+SANITASER = False
 
 cur_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
 
@@ -12,13 +13,17 @@ cpp_files = ['/src/model.cpp',
              '/src/cpu/cpu_solver.cpp']
 
 # Build only CPU version
+
+sanitaser_setup = ['-Wall', '-Werror']
 input_cpp_files = [cur_path + path for path in cpp_files + ['/src/python_package/py_wrapper_cpu.cpp']]
 o_files = [cur_path + '/src/python_package/' + path
            for path in ['model.o', 'cpu_solver.o', 'py_wrapper_cpu.o']]
 
 for cpp_file, o_file in zip(input_cpp_files, o_files):
-    get_object_command = ['g++', '-c', '-std=c++14', '-fPIC',
+    get_object_command = ['g++', '-c', '-std=c++14','-fPIC',
                           cpp_file, '-o', o_file]
+    if SANITASER:
+        get_object_command += sanitaser_setup
     subprocess.call([*get_object_command])
 
 so_cpu_path = cur_path + '/src/python_package/python_package_cpu.so'

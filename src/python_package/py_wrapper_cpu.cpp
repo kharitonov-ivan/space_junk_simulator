@@ -16,13 +16,15 @@ void solve_cpu(const double *x,
                double *vx_res,
                double *vy_res,
                double *vz_res,
+               size_t objects_count,
                size_t simulate_steps,
                float timestep) {
   using namespace World::Physics;
   std::vector<World::Object> objects;
   std::vector<World::Force> forces;
 
-  for (size_t i = 0; i < sizeof(x); ++i) {
+  for (size_t i = 0; i < objects_count; ++i) {
+      std::cout << "input" << x[i] << " " << y[i] << " "<< z[i] << "\n";
     objects.push_back(World::Object(x[i], y[i], z[i],
                                     vx[i], vy[i], vy[i], 1.0));
 
@@ -37,15 +39,10 @@ void solve_cpu(const double *x,
   World::World world(timestep, 0.0, objects, forces, generalSolver, simulate_steps, log_trajectories);
 
   std::cout << "Model created. Starting simulations\n";
-
+  world.Simulate((size_t) simulate_steps);
   world.PrintObject(0);
-  for (size_t i = 0; i < 1; ++i) {
-    world.Simulate(simulate_steps);
-    std::cout << "Step " << i << ": R = " << world.GetObject(0).R() << ", V = " << world.GetObject(0).V() << ' '
-              << world.GetObject(0).x << ' ' << world.GetObject(0).y << ' ' << world.GetObject(0).z << '\n';
-  }
 
-  for (size_t i = 0; i < sizeof(objects); ++i) {
+  for (size_t i = 0; i < objects_count; ++i) {
     x_res[i] = world.GetObject(i).x;
     y_res[i] = world.GetObject(i).y;
     z_res[i] = world.GetObject(i).z;
@@ -53,5 +50,5 @@ void solve_cpu(const double *x,
     vy_res[i] = world.GetObject(i).vy;
     vz_res[i] = world.GetObject(i).vz;
   }
-
+//   delete (generalSolver);
 }

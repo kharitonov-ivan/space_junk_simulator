@@ -24,19 +24,20 @@ class space_simulator:
         so_cpu_path = cur_path + '/python_package_cpu.so'
         self.cpu_lib = ctypes.CDLL(so_cpu_path)
         self.cpu_lib.solve_cpu.argtypes = [numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vx
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vy
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vz
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x_res
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y_res
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z_res
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vx_res
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vy_res
-                                          numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vz_res
-                                          c_size_t,
-                                          c_double]
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vx
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vy
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vz
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x_res
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y_res
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z_res
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vx_res
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vy_res
+                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vz_res
+                                              c_size_t,
+                                              c_size_t,
+                                              c_double]
 
         self.cpu_lib.solve_cpu.restype = None
         print("Ok!")
@@ -61,11 +62,13 @@ class space_simulator:
 
 #             self.gpu_lib.solve_gpu.restype = None
 
-    def run(self, x, y, z, vx, vy, vz, vzsteps=10, timestep = 1.0, gpu = False):
-        x_res, y_res, z_res, vx_res, vy_res, vz_res = x, y, z, vx, vy, vz
+    def run(self, x, y, z, vx, vy, vz, size, vzsteps, timestep, gpu = False):
+        x_res, y_res, z_res, vx_res, vy_res, vz_res = numpy.zeros_like([x, y, z, vx, vy, vz])
 
         if gpu==False:
-            self.cpu_lib.solve_cpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, vzsteps, timestep)
+            print(x, y, z, vx, vy, vz)
+            self.cpu_lib.solve_cpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, size, vzsteps, timestep)
+            print(x_res, y_res, z_res, vx_res, vy_res, vz_res)
         else:
             self.gpu_lib.solve_gpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, vzsteps, timestep)
 
