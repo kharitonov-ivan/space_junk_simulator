@@ -1,12 +1,11 @@
-
 import ctypes
-import numpy
+import numpy as np
 import glob
 import os
 from ctypes import *
 
-class Object(ctypes.Structure):
 
+class Object(ctypes.Structure):
     _fields_ = [('x', ctypes.POINTER(ctypes.c_double)),
                 ('y', ctypes.POINTER(ctypes.c_double)),
                 ('z', ctypes.POINTER(ctypes.c_double)),
@@ -14,81 +13,81 @@ class Object(ctypes.Structure):
                 ('vy', ctypes.POINTER(ctypes.c_double)),
                 ('vz', ctypes.POINTER(ctypes.c_double)),
                 ('size', ctypes.POINTER(ctypes.c_double)),
-               ]
+                ]
+
 
 class space_simulator:
-    def __init__(self, gpu = False):
-        print(os.getcwd())
+    def __init__(self, gpu=False):
         cur_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-        print(cur_path)
         so_cpu_path = cur_path + '/python_package_cpu.so'
         self.cpu_lib = ctypes.CDLL(so_cpu_path)
-        self.cpu_lib.solve_cpu.argtypes = [numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vx
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vy
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vz
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x_res
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y_res
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z_res
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vx_res
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vy_res
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vz_res
-                                              c_size_t,
-                                              c_size_t,
-                                              c_double]
+        self.cpu_lib.solve_cpu.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # x
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # y
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # z
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vx
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vy
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vz
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # x_res
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # y_res
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # z_res
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vx_res
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vy_res
+                                           np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vz_res
+                                           c_size_t,
+                                           c_size_t,
+                                           c_double]
 
         self.cpu_lib.solve_cpu.restype = None
-        print("Ok!")
 
         if gpu:
-            so_gpu_path =  cur_path + '/python_package_gpu.so'
+            so_gpu_path = cur_path + '/python_package_gpu.so'
             self.gpu_lib = ctypes.CDLL(so_gpu_path)
-            self.gpu_lib.solve_gpu.argtypes = [numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vx
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vy
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vz
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # x_res
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # y_res
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # z_res
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vx_res
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vy_res
-                                              numpy.ctypeslib.ndpointer(dtype=numpy.float64, flags="C_CONTIGUOUS"),  # vz_res
-                                              c_size_t,
-                                              c_double]
+            self.gpu_lib.solve_gpu.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # x
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # y
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # z
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vx
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vy
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vz
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # x_res
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # y_res
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # z_res
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vx_res
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vy_res
+                                               np.ctypeslib.ndpointer(dtype=np.float64, flags="C_CONTIGUOUS"),  # vz_res
+                                               c_size_t,
+                                               c_size_t,
+                                               c_double]
+            self.gpu_lib.solve_gpu.restype = None
 
-#             self.gpu_lib.solve_gpu.restype = None
 
-    def run(self, x, y, z, vx, vy, vz, size, vzsteps, timestep, gpu = False):
-        x_res, y_res, z_res, vx_res, vy_res, vz_res = numpy.zeros_like([x, y, z, vx, vy, vz])
+    def run(self, x, y, z, vx, vy, vz, size, vzsteps, timestep, gpu=False):
+        x_res, y_res, z_res, vx_res, vy_res, vz_res = np.zeros_like([x, y, z, vx, vy, vz])
 
-        if gpu==False:
-            self.cpu_lib.solve_cpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, size, vzsteps, timestep)
+        if gpu == False:
+            self.cpu_lib.solve_cpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, size, vzsteps,
+                                   timestep)
         else:
-            self.gpu_lib.solve_gpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, vzsteps, timestep)
-
- 
+            self.gpu_lib.solve_gpu(x, y, z, vx, vy, vz, x_res, y_res, z_res, vx_res, vy_res, vz_res, size, vzsteps,
+                                   timestep)
         return x_res, y_res, z_res, vx_res, vy_res, vz_res
 
-    def python_checker(self, x0, y0, z0, vx0, vy0, vz0, size, vzsteps, timestep, gpu = False):
-        
+
+    def python_checker(self, x0, y0, z0, vx0, vy0, vz0, size, vzsteps, timestep, gpu=False):
         G = 6.67408e-11
         M = 5.972e24
 
-        def get_accels(x0, y0, z0, vx0, vy0, vz0, ax0=0, ay0=0, az0=0, time=0, forces = 'simple_gravity'):
+
+        def get_accels(x0, y0, z0, vx0, vy0, vz0, ax0=0, ay0=0, az0=0, time=0, forces='simple_gravity'):
             forces_set = ['simple_gravity']
-            ax, ay, az = 0,0,0
-            if forces  in forces_set:
-                radius = numpy.sqrt(x0**2 + y0**2 + z0**2)
-                gravity_part = (G * M) / radius
+            ax, ay, az = 0, 0, 0
+            if forces in forces_set:
+                radius = np.sqrt(x0 ** 2 + y0 ** 2 + z0 ** 2)
+                gravity_part = (G * M) / (radius ** 3)
                 ax, ay, az = [- gravity_part * vector for vector in [x0, y0, z0]]
-            return  ax, ay, az
+            return ax, ay, az
 
         dt = timestep * 2.0
-        dt2 = timestep   # half of timestep
+        dt2 = timestep  # half of timestep
 
         ax0, ay0, az0 = get_accels(x0, y0, z0, vx0, vy0, vz0)
 
@@ -146,4 +145,3 @@ class space_simulator:
         vz_step = vz0 + (kz1 + 2.0 * kz2 + kz3 + kz4) / 3.0
 
         return x_step, y_step, z_step, vx_step, vy_step, vz_step
-

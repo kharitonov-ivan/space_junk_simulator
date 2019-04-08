@@ -1,9 +1,16 @@
-
 #!/usr/bin/env python
 from setuptools import setup
 import os, subprocess
+import argparse
 
-USE_GPU = False
+parser = argparse.ArgumentParser()
+parser.add_argument("--GPU", help="Build GPU module")
+args = parser.parse_args()
+if args.GPU:
+    print("GPU Mode")
+
+
+USE_GPU = args.GPU
 SANITASER = False
 
 cur_path = os.path.join(os.path.dirname(os.path.abspath(__file__)))
@@ -49,8 +56,6 @@ if USE_GPU:
                      cur_path + '/src/python_package/py_wrapper_gpu.o', 
                      cur_path + '/src/python_package/gpu_solver.o'])
     print("GPU OK", so_gpu_path)
-
-
 
 
 

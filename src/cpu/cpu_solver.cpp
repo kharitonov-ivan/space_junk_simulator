@@ -100,7 +100,7 @@ void CPUSolver::Solver::GetAccel(double x, double y, double z,
   std::cout << "Called GetAccel with: " << x << ' ' << y << ' ' << z << ' ' << vx << ' ' << vy << ' ' << vz << '\n';
   const double r = sqrt(x * x + y * y + z * z);
   std::cout << r << '\n';
-  const double k = -G * M / r;
+  const double k = -G * M / r / r / r;
   std::cout << k << '\n';
   *ax = k * x;
   *ay = k * y;
