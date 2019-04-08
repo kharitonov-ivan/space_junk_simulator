@@ -48,10 +48,11 @@ void World::Physics::GravityForce::GetAcceleration(double x, double y, double z,
                                                    double vx, double vy, double vz,
                                                    double *ax, double *ay, double *az) {
   double r = sqrt(x * x + y * y + z * z);
-  double k = -G * M / r / r / r;
+  double k = -G * M / r;
   *ax = x * k;
   *ay = y * k;
   *az = z * k;
+  std::cout << "Get ACCC!";
 };
 
 void World::Force::GetAcceleration(double x, double y, double z,

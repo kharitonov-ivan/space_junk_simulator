@@ -18,16 +18,14 @@ void solve_cpu(const double *x,
                double *vz_res,
                size_t objects_count,
                size_t simulate_steps,
-               float timestep) {
+               double timestep) {
   using namespace World::Physics;
   std::vector<World::Object> objects;
   std::vector<World::Force> forces;
 
   for (size_t i = 0; i < objects_count; ++i) {
-      std::cout << "input" << x[i] << " " << y[i] << " "<< z[i] << "\n";
     objects.push_back(World::Object(x[i], y[i], z[i],
                                     vx[i], vy[i], vy[i], 1.0));
-
   }
 
   World::Physics::GravityForce gravity = World::Physics::GravityForce();
@@ -36,7 +34,7 @@ void solve_cpu(const double *x,
   std::vector<size_t> log_trajectories;
 
   World::Solver *generalSolver = new CPUSolver::Solver();
-  World::World world(timestep, 0.0, objects, forces, generalSolver, simulate_steps, log_trajectories);
+  World::World world(timestep, 0.0, objects, forces, generalSolver, 100000, log_trajectories);
 
   std::cout << "Model created. Starting simulations\n";
   world.Simulate((size_t) simulate_steps);
