@@ -1,13 +1,16 @@
-# space_junk_simulator
-Simulator of Space junk objects based on CUDA solver
+# Space objects trajectories simulator
 
-### Python package
+
+### Installation
 Installation 
 run ```python setup.py install```
 
+### Descrition
+[Techical task](https://docs.google.com/presentation/d/1J1nNk8MCV4OwYad05VM-CzbRVBfkt3JQj_L3rKy7LtE/edit?usp=sharing)
 
-Вокруг Земли летает 21000 объектов. Надо:
-- Рассчитывать их траектории
-- Находить опасные сближения
 
-Подробнее здесь - https://docs.google.com/presentation/d/1J1nNk8MCV4OwYad05VM-CzbRVBfkt3JQj_L3rKy7LtE/edit?usp=sharing
+### Authors
+[Egor Bokov](https://github.com/bokoveg)
+[Ivan Kharitonov](https://github.com/bokoveg)
+
+Superviser [Nikita Kazeev](https://github.com/kazeevn)

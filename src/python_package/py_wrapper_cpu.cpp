@@ -34,7 +34,7 @@ void solve_cpu(const double *x,
   std::vector<size_t> log_trajectories;
 
   World::Solver *generalSolver = new CPUSolver::Solver();
-  World::World world(timestep, 0.0, objects, forces, generalSolver, 100000, log_trajectories);
+  World::World world(timestep, 0.0, objects, forces, generalSolver, 10000000, log_trajectories);
 
   std::cout << "Model created. Starting simulations\n";
   world.Simulate((size_t) simulate_steps);
