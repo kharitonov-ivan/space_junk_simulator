@@ -2,6 +2,13 @@
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
 
+__host__ __device__
+struct GpuObject {
+  __host__ __device__ GpuObject(double x, double y, double z, double vx, double vy, double vz, double size) :
+      x(x), y(y), z(z), vx(vx), vy(vy), vz(vz), size(size) {};
+  double x, y, z, vx, vy, vz, size;
+};
+
 void GetAccel(double x, double y, double z,
               double vx, double vy, double vz,
               double *ax, double *ay, double *az) {
@@ -87,10 +94,10 @@ World::Object GetNextState(World::Object &obj,
 }
 
 void GpuSolve(double dt, double time,
-                         thrust::host_vector<World::Object> &objects,
-                         thrust::host_vector<World::Force> &forces,
-                         size_t stepsNumber,
-                         std::vector<std::vector<World::Object> > &positions) {
+              thrust::host_vector<World::Object> &objects,
+              thrust::host_vector<World::Force> &forces,
+              size_t stepsNumber,
+              std::vector<std::vector<World::Object> > &positions) {
 
   positions.resize(objects.size());
   //std::cout << "time: " << time << '\n';
@@ -112,8 +119,17 @@ void GPUSolver::Solver::Solve(double dt,
                               std::vector<World::Force> &forces,
                               size_t stepsNumber,
                               std::vector<std::vector<World::Object> > &positions) {
+  thrust::host_vector<GpuObject> host_objects;
 
-  thrust::host_vector<World::Object> host_objects(objects.begin(), objects.end());
-  thrust::host_vector<World::Force> host_forces(forces.begin(), forces.end());
-  GpuSolve(dt, time, host_objects, host_forces, stepsNumber, positions);
+
+  for (size_t idx = 0; idx < objects.size(); ++idx) {
+    std::cout << objects[idx].x << '\n';
+    auto gpu_object = GpuObject(objects[idx].x, objects[idx].y, objects[idx].z,
+                                objects[idx].vx, objects[idx].vy, objects[idx].vz,
+                                objects[idx].size);
+    host_objects.push_back(gpu_object);
+  }
+  thrust::device_vector<GpuObject> device_objects(host_objects.begin(), host_objects.end());
+//  thrust::host_vector<World::Force> host_forces(forces.begin(), forces.end());
+//  GpuSolve(dt, time, host_objects, host_forces, stepsNumber, positions);
 }
