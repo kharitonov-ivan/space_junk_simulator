@@ -22,6 +22,19 @@ std::vector<std::vector<World::Object> > World::World::CalculatePositions(size_t
     return positions;
 }
 
+void CheckCollisions(std::vector<std::vector<World::Object> >& positions, std::vector<std::tuple<float, size_t, size_t> >& collisions, float time, float dt) {
+    for (size_t i = 0; i < positions[0].size(); ++i) {
+        for (size_t j = 0; j < positions.size(); ++j) {
+            for (size_t k = j + 1; k < positions.size(); ++k) {
+                float dist = pow(positions[j][i].x - positions[k][i].x, 2) + pow(positions[j][i].y - positions[k][i].y, 2) + pow(positions[j][i].z - positions[k][i].z, 2);
+                if (dist < pow(positions[j][i].size - positions[k][i].size, 2)) {
+                    collisions.push_back(std::make_tuple(time + dt * i, j, k));
+                }
+            }
+        }
+    }
+}
+
 void World::World::Simulate(size_t stepsNumber) {
     size_t curStep = 0;
     while (curStep < stepsNumber) {
@@ -32,6 +45,8 @@ void World::World::Simulate(size_t stepsNumber) {
         curStep += maxSteps_;
 
         //check collisions and log trajectories here
+        CheckCollisions(positions, collisions_, time_, dt_);
+
         for (auto& it = trajectories_.begin(); it != trajectories_.end(); ++it) {
             it->second.insert(it->second.end(), positions[it->first].begin(), positions[it->first].end());
         }

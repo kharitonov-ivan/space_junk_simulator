@@ -107,6 +107,7 @@ namespace World {
         std::vector<Object>& objects_;
         std::vector<Force>& forces_;
         std::unordered_map<size_t, std::vector<Object> > trajectories_;
+        std::vector<std::tuple<float, size_t, size_t> > collisions_;
         Solver* solver_;
         size_t maxSteps_;
         float time_;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "model.cuh"
+#include "../model.cuh"
 #include <unordered_map>
 namespace GPUSolver {
     class Solver : public World::Solver {
