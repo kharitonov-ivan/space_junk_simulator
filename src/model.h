@@ -9,9 +9,6 @@
 
 namespace World {
 struct Object {
-  Object(double x, double y, double z, double vx, double vy, double vz, double size) :
-      x(x), y(y), z(z), vx(vx), vy(vy), vz(vz), size(size) {};
-
   void PrintObject() {
     std::cout << "Position: " << x << ' ' << y << ' ' << z << '\n';
     std::cout << "Velocity: " << vx << ' ' << vy << ' ' << vz << '\n';
@@ -29,12 +26,14 @@ struct Object {
   double x, y, z, vx, vy, vz, size;
 };
 
+
 class Force {
  public:
-  virtual void GetAcceleration(double x, double y, double z,
-                               double vx, double vy, double vz,
-                               double *ax, double *ay, double *az);
+  virtual void GetAcceleration (double x, double y, double z,
+                                double vx, double vy, double vz,
+                                double *ax, double *ay, double *az);
 };
+
 
 namespace Physics {
 const double EARTH_MASS = 5.972e24;
@@ -47,7 +46,21 @@ const double M = EARTH_MASS;
 const double G = GRAVITY_CONSTANT;
 const double R = EARTH_RADIUS;
 
-class GravityForce : public Force {
+class SimpleGravityForce : public Force {
+ public:
+  virtual void GetAcceleration(double x, double y, double z,
+                               double vx, double vy, double vz,
+                               double *ax, double *ay, double *az) override;
+};
+
+class AirDrag : public Force {
+ public:
+  virtual void GetAcceleration(double x, double y, double z,
+                               double vx, double vy, double vz,
+                               double *ax, double *ay, double *az);
+};
+
+class HeterogeneousGravityForce : public Force {
  public:
   virtual void GetAcceleration(double x, double y, double z,
                                double vx, double vy, double vz,
@@ -59,55 +72,57 @@ class Solver {
  public:
   virtual void Solve(double dt,
                      double time,
-                     std::vector<Object> &objects,
-                     std::vector<Force> &forces,
+                     std::vector<Object>& objects,
+                     std::vector<Force>& forces,
                      size_t stepsNumber,
-                     std::vector<std::vector<Object> > &positions) = 0;
+                     std::vector<std::vector<Object> >& positions) = 0;
 };
+
 
 class World {
  public:
   World(double dt,
         double time,
-        std::vector<Object> &objects,
-        std::vector<Force> &forces,
-        Solver *solver,
+        std::vector<Object>& objects,
+        std::vector<Force>& forces,
+        Solver* solver,
         size_t maxSteps,
-        std::vector<size_t> &logTrajectories) :
+        std::vector<size_t>& logTrajectories) :
       time_(time), objects_(objects), forces_(forces),
       solver_(solver), maxSteps_(maxSteps), dt_(dt) {
-    for (const auto &id : logTrajectories) {
+    for (const auto& id : logTrajectories) {
       trajectories_[id] = std::vector<Object>();
     }
   };
 
-  void Save(const std::string &filepath);
+  void Save(const std::string& filepath);
 
-  void Load(const std::string &filepath);
+  void Load(const std::string& filepath);
 
   void Simulate(size_t stepsNumber);
 
-  void AddForce(Force &force);
+  void AddForce(Force& force);
 
-  void AddObject(Object &object);
+  void AddObject(Object& object);
 
   void PrintObject(size_t id) {
     //std::cout << "Ojbect id: " << id << '\n';
     objects_[id].PrintObject();
   }
 
-  Object &GetObject(size_t id) {
+  Object& GetObject(size_t id) {
     return objects_[id];
   }
 
-  void DumpTrajectories(std::string &outputFile);
+  void DumpTrajectories(std::string& outputFile);
 
  private:
   std::vector<std::vector<Object> > CalculatePositions(size_t stepsNumber);
-  std::vector<Object> &objects_;
-  std::vector<Force> &forces_;
+  std::vector<Object>& objects_;
+  std::vector<Force>& forces_;
   std::unordered_map<size_t, std::vector<Object> > trajectories_;
-  Solver *solver_;
+  std::vector<std::tuple<double, size_t, size_t> > collisions_;
+  Solver* solver_;
   size_t maxSteps_;
   double time_;
   double dt_;

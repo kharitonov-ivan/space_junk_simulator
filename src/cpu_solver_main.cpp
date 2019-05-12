@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
   World::Solver *generalSolver = new CPUSolver::Solver();
 
   std::vector<World::Force> forces;
-  World::Physics::GravityForce gravity = World::Physics::GravityForce();
+  World::Physics::SimpleGravityForce gravity = World::Physics::SimpleGravityForce();
   forces.push_back(gravity);
 
   std::string outputFile = argv[2];

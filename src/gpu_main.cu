@@ -5,7 +5,7 @@
 #include <iostream>
 #include <iterator>
 #include <algorithm>
-#include "model.cuh"
+#include "model.h"
 #include "gpu_solver.cuh"
 
 int main() {
