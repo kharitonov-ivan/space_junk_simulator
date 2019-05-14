@@ -1,5 +1,5 @@
 #include "../model.h"
-#include "../gpu/gpu_solver.h"
+#include "../gpu/gpu_solver.cuh"
 #include "../../lib/json.hpp"
 #include <fstream>
 
@@ -24,11 +24,11 @@ void solve_gpu(const double *x,
   std::vector<World::Force> forces;
 
   for (size_t i = 0; i < objects_count; ++i) {
-    objects.push_back(World::Object(x[i], y[i], z[i],
-                                    vx[i], vy[i], vy[i], 1.0));
+    objects.push_back({x[i], y[i], z[i],
+                                    vx[i], vy[i], vy[i], 1.0});
   }
 
-  World::Physics::GravityForce gravity = World::Physics::GravityForce();
+  World::Physics::SimpleGravityForce gravity = World::Physics::SimpleGravityForce();
   forces.push_back(gravity);
 
   std::vector<size_t> log_trajectories;
@@ -36,9 +36,9 @@ void solve_gpu(const double *x,
   World::Solver *generalSolver = new GPUSolver::Solver();
   World::World world(timestep, 0.0, objects, forces, generalSolver, 10000000, log_trajectories);
 
-  std::cout << "Model created. Starting simulations\n";
+//  std::cout << "Model created. Starting simulations\n";
   world.Simulate((size_t) simulate_steps);
-  world.PrintObject(0);
+//  world.PrintObject(0);
 
   for (size_t i = 0; i < objects_count; ++i) {
     x_res[i] = world.GetObject(i).x;

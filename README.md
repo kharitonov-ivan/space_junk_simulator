@@ -6,7 +6,7 @@ Installation
 run ```python setup.py install```
 
 ### Descrition
-[Techical task](https://docs.google.com/presentation/d/1J1nNk8MCV4OwYad05VM-CzbRVBfkt3JQj_L3rKy7LtE/edit?usp=sharing)
+[Technical task](https://docs.google.com/presentation/d/1J1nNk8MCV4OwYad05VM-CzbRVBfkt3JQj_L3rKy7LtE/edit?usp=sharing)
 
 
 ### Authors

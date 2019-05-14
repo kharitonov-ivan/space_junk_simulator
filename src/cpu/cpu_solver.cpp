@@ -81,14 +81,16 @@ World::Object CPUSolver::Solver::GetNextState(World::Object &obj,
   double ly4 = dt2 * (obj.vy + ky3);
   double lz4 = dt2 * (obj.vz + kz3);
 
-  return World::Object(
-      obj.x + (lx1 + 2.0 * lx2 + lx3 + lx4) / 3.0,
-      obj.y + (ly1 + 2.0 * ly2 + ly3 + ly4) / 3.0,
-      obj.z + (lz1 + 2.0 * lz2 + lz3 + lz4) / 3.0,
-      obj.vx + (kx1 + 2.0 * kx2 + kx3 + kx4) / 3.0,
-      obj.vy + (ky1 + 2.0 * ky2 + ky3 + ky4) / 3.0,
-      obj.vz + (kz1 + 2.0 * kz2 + kz3 + kz4) / 3.0,
-      obj.size);
+  World::Object res;
+  res.x = obj.x + (lx1 + 2.0 * lx2 + lx3 + lx4) / 3.0;
+  res.y = obj.y + (ly1 + 2.0 * ly2 + ly3 + ly4) / 3.0;
+  res.z = obj.z + (lz1 + 2.0 * lz2 + lz3 + lz4) / 3.0;
+  res.vx = obj.vx + (kx1 + 2.0 * kx2 + kx3 + kx4) / 3.0;
+  res.vy = obj.vy + (ky1 + 2.0 * ky2 + ky3 + ky4) / 3.0;
+  res.vz = obj.vz + (kz1 + 2.0 * kz2 + kz3 + kz4) / 3.0;
+  res.size = obj.size;
+
+  return res;
 }
 
 void CPUSolver::Solver::GetAccel(double x, double y, double z,
@@ -97,12 +99,19 @@ void CPUSolver::Solver::GetAccel(double x, double y, double z,
                                  std::vector<World::Force> &forces) {
   //TODO: calculate for each force
   using namespace World::Physics;
-  std::cout << "Called GetAccel with: " << x << ' ' << y << ' ' << z << ' ' << vx << ' ' << vy << ' ' << vz << '\n';
-  const double r = sqrt(x * x + y * y + z * z);
-  std::cout << r << '\n';
-  const double k = -G * M / r / r / r;
-  std::cout << k << '\n';
-  *ax = k * x;
-  *ay = k * y;
-  *az = k * z;
+////  std::cout << "Called GetAccel with: " << x << ' ' << y << ' ' << z << ' ' << vx << ' ' << vy << ' ' << vz << '\n';
+//  const double r = sqrt(x * x + y * y + z * z);
+////  std::cout << r << '\n';
+//  const double k = -G * M / r / r / r;
+////  std::cout << k << '\n';
+//  *ax = k * x;
+//  *ay = k * y;
+//  *az = k * z;
+  auto simple_gravity = World::Physics::SimpleGravityForce();
+  auto gravity = World::Physics::HeterogeneousGravityForce();
+  auto air_drag = World::Physics::AirDrag();
+//  simple_gravity.GetAcceleration(x, y, z, vx, vy, vz, ax, ay, az);
+  gravity.GetAcceleration(x, y, z, vx, vy, vz, ax, ay, az);
+//  air_drag.GetAcceleration(x, y, z, vx, vy, vz, ax, ay, az);
+
 };

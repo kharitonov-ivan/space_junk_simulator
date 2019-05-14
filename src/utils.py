@@ -83,9 +83,9 @@ def generate_object_states(object_count=100,
         x_1, y_1, z_1 = spherical_to_decart(altitude, theta_1, phi_1)
 
 
-        vx_0 = x_1 - x_0
-        vy_0 = y_1 - y_0
-        vz_0 = z_1 - z_0
+        vx_0 = np.random.uniform(-100000000, 100000000) # np.random.uniform(-100000, 100000)#x_1 - x_0
+        vy_0 = np.random.uniform(-100000000, 100000000)#y_1 - y_0
+        vz_0 = np.random.uniform(-100000000, 100000000) #np.random.uniform(-100000, 100000)#z_1 - z_0
 
 
 
@@ -94,9 +94,9 @@ def generate_object_states(object_count=100,
                             'x': x_0,
                             'y': y_0,
                             'z': z_0,
-                            'vx' : vx_0[0],
-                            'vy' : vy_0[0],
-                            'vz' : vz_0[0],
+                            'vx' : vx_0,
+                            'vy' : vy_0,
+                            'vz' : vz_0,
                             'size': size})
 
     return object_list
