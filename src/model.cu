@@ -40,10 +40,10 @@ void World::World::Simulate(size_t stepsNumber) {
         );
         curStep += maxSteps_;
         //check collisions and log trajectories here
-        if (collisionOption_ != "disabled") {
-            CheckCollisions(positions, collisions_, time_, dt_);
-        }
-        for (auto& it = trajectories_.begin(); it != trajectories_.end(); ++it) {
+//        if (collisionOption_ != "disabled") {
+//            CheckCollisions(positions, collisions_, time_, dt_);
+//        }
+        for (auto it = trajectories_.begin(); it != trajectories_.end(); ++it) {
             it->second.insert(it->second.end(), positions[it->first].begin(), positions[it->first].end());
         }
 

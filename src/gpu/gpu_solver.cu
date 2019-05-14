@@ -10,7 +10,9 @@ struct ForcesOptions {
 __host__ __device__
 void GetHeterogeneousGravityAcc(double x, double y, double z,
                                 double vx, double vy, double vz,
-                                double *ax, double *ay, double *az, ForcesOptions& options) {
+                                double *ax, double *ay, double *az,
+                                const ForcesOptions &options) {
+
     if (!options.heterogeneousGravityEnabled) {
         return;
     }
@@ -44,8 +46,7 @@ void GetHeterogeneousGravityAcc(double x, double y, double z,
     double g_corr_lat_denum = sqrt(1 - eccentricity_squared * sin(wgs_lat)* sin(wgs_lat));
     double g_corr_wgs = g_corr_lat_num/g_corr_lat_denum;*/
 
-    // TODO Simle circle gravity
-
+    // TODO Simple circle gravity
     double lat = asin(z / r) * 360 / (2 * pi);
 
     // Gravity latitude correction (non WGS)
@@ -62,15 +63,120 @@ void GetHeterogeneousGravityAcc(double x, double y, double z,
     *az += z * k;
 };
 
+
+
 __host__ __device__
-double GpuGetAirDensity(double x, double y, double z,
-    double vx, double vy, double vz,
-    double *ax, double *ay, double *az, const ForcesOptions& options) {
-    if (!options.airDensityEnabled) {
-        return 0.0;
+double GetAirDensity(double altitude)  {
+
+  typedef struct { double x; double y; } lookup_table;
+
+  static const double xs[] = {0,
+                              2000,
+                              4000,
+                              6000,
+                              8000,
+                              10000,
+                              12000,
+                              14000,
+                              16000,
+                              18000,
+                              20000,
+                              22000,
+                              24000,
+                              26000,
+                              28000,
+                              30000,
+                              32000,
+                              36000,
+                              40000,
+                              44000,
+                              48000,
+                              53000,
+                              61000,
+                              69000,
+                              69000};
+
+  static const double ys[] = {1.225,
+                              1.00655,
+                              8.19347e-1,
+                              6.011e-1,
+                              5,25786e-1,
+                              4.13510e-1,
+                              3.11937e-1,
+                              2.27855e-1,
+                              1.66470e-1,
+                              1.21747e-1,
+                              8.89097e-2,
+                              6.45096e-2,
+                              4.69377e-2,
+                              3.42565e-2,
+                              2.50762e-2,
+                              1.84101e-2,
+                              1.35551e-2,
+                              7.25789e-3,
+                              3.99566e-3,
+                              2.25884e-3,
+                              1.311669e-3,
+                              7.17904e-4,
+                              2.73212e-4,
+                              9.51698e-5,
+                              2.94479e-5};
+
+
+
+
+  size_t table_size = 25;
+
+  if (altitude < xs[0]) {
+    return  ys[0];
+  }
+
+  if (altitude > xs[table_size-1]) {
+    return  xs[table_size-1];
+  }
+
+  size_t idx = 0;
+  for (idx=0 ; idx < table_size-1; ++idx) {
+    if (xs[idx+1] > altitude) {
+      break;
     }
+  }
+
+  double dx = xs[idx+1] - xs[idx];
+  double dy = ys[idx+1] - ys[idx];
+
+  double interpolation = ys[idx] + (altitude - xs[idx]) * dy / dx;
+  return interpolation;
+
+};
+
+
+
+__host__ __device__
+void GetAirDragAcc(double x, double y, double z,
+                     double vx, double vy, double vz,
+                     double *ax, double *ay, double *az,
+                     const ForcesOptions &options) {
+    if (!options.airDensityEnabled) {
+        return;
+    }
+
     // TODO: Look up table for atmosphere density
-    return 0.0;
+  double r = sqrt(x * x + y * y + z * z);
+  double v_norm = vx * vx + vy * vy + vz * vz;
+  double v = sqrt(v_norm);
+
+
+  double air_drag_coeff = 8.e-4;
+  double air_drag = air_drag_coeff * GetAirDensity(r) * v_norm;
+
+  double air_drag_ax = - air_drag * vx / v;
+  double air_drag_ay = - air_drag * vy / v;
+  double air_drag_az = - air_drag * vz / v;
+
+  *ax += air_drag_ax;
+  *ay += air_drag_ay;
+  *az += air_drag_az;
 }
 
 __host__ __device__
@@ -85,9 +191,9 @@ void GetSimpleGravityForceAcc(double x, double y, double z,
 
     double r = sqrt(x * x + y * y + z * z);
     double k = -G * M / r / r / r;
-    *ax = x * k;
-    *ay = y * k;
-    *az = z * k;
+    *ax += x * k;
+    *ay += y * k;
+    *az += z * k;
 };
 
 __host__ __device__
@@ -98,6 +204,9 @@ __host__ __device__
     *ay = 0.0;
     *az = 0.0;
     //add your custom force call here
+
+    GetSimpleGravityForceAcc(x, y, z, vx, vy, vz, ax, ay, az, options);
+    GetHeterogeneousGravityAcc(x, y, z, vx, vy, vz, ax, ay, az, options);
     GetSimpleGravityForceAcc(x, y, z, vx, vy, vz, ax, ay, az, options);
 };
 
@@ -214,7 +323,7 @@ ForcesOptions BuildOptions(const std::vector<std::string>& forces) {
         if (force == "gravity") {
             res.gravityEnabled = true;
         }
-        if (force == "air_density") {
+        if (force == "air_drag") {
             res.airDensityEnabled = true;
         }
         if (force == "heterogeneous_gravity") {
