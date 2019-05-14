@@ -5,38 +5,74 @@
 #include <iostream>
 #include <iterator>
 #include <algorithm>
-#include "model.h"
-#include "gpu_solver.cuh"
+#include "model.cuh"
+#include "gpu/gpu_solver.cuh"
 
-int main() {
-     using namespace World::Physics;
+void ReadConfig(std::istream& in,
+                std::vector<World::Object>& objects,
+                std::vector<size_t>& logTrajectories,
+                std::vector<std::string>& forces,
+                size_t& maxSteps,
+                size_t& steps,
+                double& dt,
+                double& time,
+                std::string& trajectoriesOutputPath,
+                std::string& collisionsOutputPath,
+                std::string& collisionOption) {
+    in >> time >> dt >> maxSteps >> steps;
+    size_t objectsNum, logTrajectoriesNum, forcesNum;
+    in >> objectsNum;
+    for (size_t i = 0; i < objectsNum; ++i) {
+        double x, y, z, vx, vy, vz, size;
+        in >> x >> y >> z >> vx >> vy >> vz >> size;
+        objects.push_back({ x, y, z, vx, vy, vz, size });
+    }
 
-     std::vector<World::Object> objects;
-     std::vector<World::Force> forces;
+    in >> logTrajectoriesNum;
+    for (size_t i = 0; i < logTrajectoriesNum; ++i) {
+        size_t id;
+        in >> id;
+        logTrajectories.push_back(id);
+    }
 
-     World::Object start;
-     start.x = 0.0;
-     start.y = 1.2 * R;
-     start.z = 0.0;
-     start.vx = sqrt(G * M / (1.2 * R));
-     start.vy = 0.0;
-     start.vz = 0.0;
-     start.size = 1.0;
-     objects.push_back(start);
+    in >> forcesNum;
+    for (size_t i = 0; i < forcesNum; ++i) {
+        std::string force;
+        in >> force;
+        forces.push_back(force);
+    }
 
+    in >> trajectoriesOutputPath;
+    in >> collisionsOutputPath;
+    in >> collisionOption;
+}
+int main(int argc, char *argv[]) {
+    using namespace World::Physics;
 
-     World::Physics::GravityForce gravity = World::Physics::GravityForce();
-     forces.push_back(gravity);
+    std::string trajectoriesOutputPath, collisionsOutputPath, collisionOption;
+    std::vector<World::Object> objects;
+    std::vector<std::string> forces;
+    std::vector<size_t> logTrajectories;
+    double time, dt;
+    size_t maxSteps, steps;
+    auto in = std::ifstream(argv[1], std::ios_base::in);
+    ReadConfig(in, objects, logTrajectories,
+        forces,
+        maxSteps,
+        steps,
+        dt,
+        time,
+        trajectoriesOutputPath,
+        collisionsOutputPath,
+        collisionOption
+    );
 
-     World::Solver* generalSolver = new GPUSolver::Solver();
-     World::World world(1.0, 0.0, objects, forces, generalSolver, 100, std::vector<size_t>());
+    World::Solver *generalSolver = new GPUSolver::Solver();
 
-     std::cout << "Model created. Starting simulations\n";
+    World::World world(dt, time, objects, forces, generalSolver, maxSteps, logTrajectories, collisionOption);
 
-     world.PrintObject(0);
-     for (size_t i = 0; i < 100; ++i) {
-         world.Simulate(1);
-         std::cout << "Step " << i << ": R = " << world.GetObject(0).R() << ", V = " << world.GetObject(0).V() << ' '
-                   << world.GetObject(0).x << ' ' << world.GetObject(0).y << ' ' << world.GetObject(0).z << '\n';
-     }
+    world.Simulate(steps);
+    world.DumpTrajectories(trajectoriesOutputPath);
+    world.DumpCollisions(collisionsOutputPath);
+    delete (generalSolver);
 }
