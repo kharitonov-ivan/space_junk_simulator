@@ -1,6 +1,7 @@
 #include "gpu_solver.cuh"
 #include <thrust/host_vector.h>
 #include <thrust/device_vector.h>
+#include <stdio.h>
 
 struct ForcesOptions {
     //add options for your force here
@@ -46,8 +47,9 @@ void GetHeterogeneousGravityAcc(double x, double y, double z,
     double g_corr_lat_denum = sqrt(1 - eccentricity_squared * sin(wgs_lat)* sin(wgs_lat));
     double g_corr_wgs = g_corr_lat_num/g_corr_lat_denum;*/
 
-    // TODO Simple circle gravity
-    double lat = asin(z / r) * 360 / (2 * pi);
+    // TODO Simple gravity correction from Wikipedia
+    // double lat = 180 * asin(z / r) / pi;
+    double lat = asin(z / r);
 
     // Gravity latitude correction (non WGS)
     double g_corr_lat = 9.780327 * (1 + 0.0053024 * sin(lat) * sin(lat) - 0.0000058 * sin(2 * lat) * sin(2 * lat));
@@ -56,7 +58,7 @@ void GetHeterogeneousGravityAcc(double x, double y, double z,
     double alt = r - R;
     double g_corr_alt = -3.086e-6 * alt;
     double g_corr = g_corr_lat + g_corr_alt;
-    double k = -g_corr / r;
+    double k = -g_corr / r /r;
 
     *ax += x * k;
     *ay += y * k;
@@ -161,22 +163,33 @@ void GetAirDragAcc(double x, double y, double z,
         return;
     }
 
+  const double pi = 3.14159265359;
+  const double EARTH_MASS = 5.972e24;
+  const double EARTH_RADIUS = 6.371e6;
+  const double GRAVITY_CONSTANT = 6.67408e-11;
+
+  //aliases
+
+  const double M = EARTH_MASS;
+  const double G = GRAVITY_CONSTANT;
+  const double R = EARTH_RADIUS;
     // TODO: Look up table for atmosphere density
   double r = sqrt(x * x + y * y + z * z);
   double v_norm = vx * vx + vy * vy + vz * vz;
   double v = sqrt(v_norm);
 
+  if (v > 1e-12) {
+    double air_drag_coeff = 8.e-4;
+    double air_drag = air_drag_coeff * GetAirDensity(30000);
 
-  double air_drag_coeff = 8.e-4;
-  double air_drag = air_drag_coeff * GetAirDensity(r) * v_norm;
+    double air_drag_ax = air_drag;
+    double air_drag_ay = air_drag;
+    double air_drag_az = air_drag;
 
-  double air_drag_ax = - air_drag * vx / v;
-  double air_drag_ay = - air_drag * vy / v;
-  double air_drag_az = - air_drag * vz / v;
-
-  *ax += air_drag_ax;
-  *ay += air_drag_ay;
-  *az += air_drag_az;
+    *ax -= air_drag_ax;
+    *ay -= air_drag_ay;
+    *az -= air_drag_az;
+  }
 }
 
 __host__ __device__
@@ -207,7 +220,7 @@ __host__ __device__
 
     GetSimpleGravityForceAcc(x, y, z, vx, vy, vz, ax, ay, az, options);
     GetHeterogeneousGravityAcc(x, y, z, vx, vy, vz, ax, ay, az, options);
-    GetSimpleGravityForceAcc(x, y, z, vx, vy, vz, ax, ay, az, options);
+    GetAirDragAcc(x, y, z, vx, vy, vz, ax, ay, az, options);
 };
 
 __host__ __device__

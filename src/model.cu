@@ -1,4 +1,5 @@
 #include "model.cuh"
+#include <sys/types.h>
 
 void World::World::Save(const std::string& filepath) {
     std::cout << "World::Save not implemented yet\n";
@@ -31,10 +32,10 @@ void CheckCollisions(std::vector<std::vector<World::Object> >& positions, std::v
     }
 }
 
-typedef std::tuple<int, int, int> key_t;
-struct key_hash : public std::unary_function<key_t, std::size_t>
+typedef std::tuple<int, int, int> key_t_;
+struct key_hash : public std::unary_function<key_t_, std::size_t>
 {
-    std::size_t operator()(const key_t& k) const
+    std::size_t operator()(const key_t_& k) const
     {
         return std::get<0>(k) ^ std::get<1>(k) ^ std::get<2>(k);
     }
